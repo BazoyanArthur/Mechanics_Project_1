@@ -6,8 +6,11 @@ class car
 
 public:
 
-	car(double speed, double max_speed, double dist, double p_accel, double n_accel)
+	car(double speed, double max_speed, double dist, double p_accel, double n_accel, double car_dist)
 	{
+		max_dist_to_car = 100;
+		min_dist_to_car = 10;
+
 		max_init_speed_limit = 80;
 		min_init_speed_limit = 20;
 
@@ -30,9 +33,11 @@ public:
 		set_curr_dist_intersect(dist);
 		set_pos_accel(p_accel);
 		set_neg_accel(n_accel);
+		set_dist_car(car_dist);
 
 		suggestion = false;
 		passed_dist = 0;
+		acceleration = false;
 
 	};
 
@@ -75,6 +80,11 @@ public:
 		return passed_dist;
 	}
 
+	double get_dist_to_car() const
+	{
+		return dist_to_fcar;
+	}
+
 	//////////////////////////////////////
 	// set the initial speed, converts km/h to m/s
 	void set_init_speed(double speed)
@@ -99,14 +109,19 @@ public:
 		curr_speed = speed * 1000 / 3600;
 	};
 
-
 	void accelerate( double time)
 	{
 		double accel = 0.0;
 		if (suggestion == true)
+		{
+			acceleration = true;
 			accel = pos_accel;
+		}
 		else
+		{
+			acceleration = false;
 			accel = -neg_accel;
+		}
 
 		double d_vel = curr_speed + accel * time;
 
@@ -125,6 +140,93 @@ public:
 		passed_dist = passed_dist + (curr_speed * time) + ((pos_accel * (time * time)) / 2);
 	};
 
+	void accelerate(double time, car front_car)
+	{
+		double accel = 0.0;
+		if (suggestion == true)
+		{
+			acceleration = true;
+			accel = pos_accel;
+		}
+		else
+		{
+			acceleration = false;
+			accel = -neg_accel;
+		}
+
+		double d_vel = curr_speed + accel * time;
+
+		if (d_vel > max_speed)
+		{
+			passed_dist = passed_dist + (max_speed * time) + ((pos_accel * (time * time)) / 2);
+			return;
+		}
+		if (d_vel <= 0)
+		{
+			curr_speed = 0;
+			return;
+		}
+
+		curr_speed = d_vel;
+		passed_dist = passed_dist + (curr_speed * time) + ((pos_accel * (time * time)) / 2);
+
+		double front_car_accel = 0.0;
+
+		if (front_car.get_accel_status())
+			front_car_accel = front_car.get_pos_accel();
+		else
+			front_car_accel = -front_car.get_neg_accel();
+
+		double possible_dist_fcar = (front_car.get_curr_speed() * time) + ((front_car_accel * (time * time)) / 2);
+		double possible_dist = (curr_speed * time) + ((pos_accel * (time * time)) / 2);
+
+		if (possible_dist > possible_dist_fcar)
+			dist_to_fcar = possible_dist - possible_dist_fcar;
+		else
+			dist_to_fcar = possible_dist_fcar - possible_dist;
+
+	};
+
+	bool get_suggestion(double distance, double time_left, car front_car)
+	{
+		double possible_dist = (curr_speed * time_left) + ((pos_accel * (time_left * time_left)) / 2);
+
+		double front_car_accel = 0.0;
+
+		if (front_car.get_accel_status())
+			front_car_accel = front_car.get_pos_accel();
+		else
+			front_car_accel = -front_car.get_neg_accel();
+
+		double possible_dist_fcar = (front_car.get_curr_speed() * time_left) + ((front_car_accel * (time_left * time_left)) / 2);
+
+		if (possible_dist > possible_dist_fcar)
+		{
+			if (possible_dist - possible_dist_fcar < dist_to_fcar)
+			{
+				suggestion = false;
+				return false;
+			}
+		}
+		else
+		{
+			if (possible_dist_fcar - possible_dist < dist_to_fcar)
+			{
+				suggestion = false;
+				return false;
+			}
+		}
+
+		if (possible_dist < distance - passed_dist)
+		{
+			suggestion = false;
+			return false;
+		}
+
+		suggestion = true;
+		return true;
+	};
+
 	bool get_suggestion(double distance, double time_left )
 	{
 		double possible_dist = (curr_speed * time_left) + ((pos_accel * (time_left * time_left)) / 2);
@@ -136,6 +238,18 @@ public:
 		
 		suggestion = true;
 		return true;
+	}
+
+	void set_dist_car(double dist)
+	{
+		if (dist > max_dist_to_car || dist < min_dist_to_car)
+			throw("Distance to a car is out of limits! Error at: car::set_dist_car");
+		dist_to_fcar = dist;
+	}
+
+	bool get_accel_status()
+	{
+		return acceleration;
 	}
 
 
@@ -188,7 +302,12 @@ private:
 	double neg_accel;				// negative acceleration
 	double max_n_accel_limit;
 	double min_n_accel_limit;
-	
+
+	double dist_to_fcar;	// distance to the car in front
+	double max_dist_to_car;
+	double min_dist_to_car;
+
 	bool suggestion;	// false if cannot make it to the other side
+	bool acceleration;	// shows if the car is accelerating or braking
 };
 
