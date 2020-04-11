@@ -1,0 +1,5 @@
+﻿  main.cpp
+J:\AUA_Stuff\Semester_6\Mechanics\Projects\Project_1\Project2\Project2\Project2\main.cpp(10,35): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+J:\AUA_Stuff\Semester_6\Mechanics\Projects\Project_1\Project2\Project2\Project2\main.cpp(10,30): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+J:\AUA_Stuff\Semester_6\Mechanics\Projects\Project_1\Project2\Project2\Project2\main.cpp(10,25): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+LINK : fatal error LNK1168: cannot open J:\AUA_Stuff\Semester_6\Mechanics\Projects\Project_1\Project2\Project2\Debug\Project2.exe for writing
