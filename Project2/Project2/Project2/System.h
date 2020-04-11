@@ -5,7 +5,7 @@ class System
 {
 public:
 
-	System(Mass m1, Mass m2, Mass m3, int my1, int my2, int my3, double f ) :
+	System(Mass m1, Mass m2, Mass m3, double my1, double my2, double my3, double f ) :
 	M1(m1), M2(m2), M3(m3),
 	myu1(my1), myu2(my2), myu3(my3),
 	force(f),
@@ -14,10 +14,10 @@ public:
 		if (!((myu1 > 0 && myu1 <= 0.5) && (myu2 > 0 && myu2 <= 0.5) && (myu3 > 0 && myu3 <= 0.5)))
 			throw("Myu is out of bounds! - at System::System()");
 
-		if (!(f >= -300 && f <= 300))
+		if (!(force >= -300 && force <= 300))
 			throw("Force is out of bounds! - at System::System()");
 
-		if (f > 0)
+		if (force > 0)
 			direction = true;
 		else
 			direction = false;
@@ -44,6 +44,7 @@ public:
 		 
 		double accel_m2 = ((M3.get_mass() * g) - (N3 * myu3) - f_pushing_m2 + f_friction) / (M2.get_mass() + M3.get_mass());
 
+		return accel_m2;
 	}
 
 	void PUSH( )
@@ -82,14 +83,12 @@ public:
 
 			M3.set_y_cor(M3.get_y_cor() + dy_m3);
 			if (M3.get_y_cor() < 3)
-				M3.set_x_cor(3);	// hit M1
-			else if (M3.get_x_cor() > 10)
-				M3.set_x_cor(10);	// cannot go through pulley
+				M3.set_y_cor(3);	// hit M1
+			else if (M3.get_y_cor() > 10)
+				M3.set_y_cor(10);	// cannot go through pulley
 
 
-			std::cout << "M1_x: " << M1.get_x_cor() << "\t" << "M1_y: " << M1.get_y_cor() << std::endl;
-			std::cout << "M2_x: " << M2.get_x_cor() << "\t" << "M2_y: " << M2.get_y_cor() << std::endl;
-			std::cout << "M3_x: " << M3.get_x_cor() << "\t" << "M3_y: " << M3.get_y_cor() << std::endl;
+			std::cout << "M1_x: " << M1.get_x_cor() << "\t" << "M1_y: " << M1.get_y_cor() << "\t" << "M2_x: " << M2.get_x_cor() << "\t" << "M2_y: " << M2.get_y_cor() << "\t" << "M3_x: " << M3.get_x_cor() << "\t" << "M3_y: " << M3.get_y_cor() << std::endl;
 
 			t += delta_t;
 		}
@@ -99,7 +98,7 @@ public:
 
 private:
 	Mass M1, M2, M3;
-	const double myu1, myu2, myu3;
+	double myu1, myu2, myu3;
 	double force;
 	int g;
 	bool direction; // false = left, true = right
