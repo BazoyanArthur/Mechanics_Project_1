@@ -26,6 +26,8 @@ public:
 	double get_m1_accel()
 	{
 		double accel_m1 = (force - ((M1.get_mass() * g) + (M2.get_mass() * g)) * myu1 - (M2.get_mass() * g * myu2)) / M1.get_mass();
+		if (accel_m1 < 0)
+			return 0;
 		return accel_m1;
 	}
 
@@ -74,12 +76,13 @@ public:
 			M3.set_vel(M3.get_vel() + dv_m3);
 
 			M1.set_x_cor(M1.get_x_cor() + dx_m1);
+			M3.set_x_cor(M1.get_x_cor());
 
 			M2.set_x_cor(M2.get_x_cor() + dx_m2);
-			if (M2.get_x_cor() < 0)
-				M2.set_x_cor(0);	// canot fall
-			else if (M2.get_x_cor() > 10)
-				M2.set_x_cor(10);	// cannot go through pulley
+			if (M2.get_x_cor() < M1.get_x_cor() - 10)
+				M2.set_x_cor(M1.get_x_cor() - 10);	// canot fall
+			else if (M2.get_x_cor() > M1.get_x_cor())
+				M2.set_x_cor(M1.get_x_cor());	// cannot go through pulley
 
 			M3.set_y_cor(M3.get_y_cor() + dy_m3);
 			if (M3.get_y_cor() < 3)
