@@ -33,18 +33,25 @@ public:
 
 	double get_m23_accel()
 	{
-		double f_pushing_m2 = M2.get_mass() * g * myu2;
+		double f_friction = -(M2.get_mass() * g * myu2);
 
-		double f_friction = f_pushing_m2;
+		double f_pushing_m2 = f_friction;
 
-		if (direction == true)
-		{
-			f_friction = -f_friction;
-		}
+		if (force == 0)
+			f_pushing_m2 = 0;
+
+		//if (direction == true)
+		//{
+		//	f_friction = -f_friction;
+		//}
 		
 		double N3 = M1.get_accel() * M3.get_mass();
 		 
 		double accel_m2 = ((M3.get_mass() * g) - (N3 * myu3) - f_pushing_m2 + f_friction) / (M2.get_mass() + M3.get_mass());
+
+		if (force == 0 && accel_m2 < 0)
+			return 0;
+
 
 		return accel_m2;
 	}
@@ -84,7 +91,11 @@ public:
 			else if (M2.get_x_cor() > M1.get_x_cor())
 				M2.set_x_cor(M1.get_x_cor());	// cannot go through pulley
 
+			if (M2.get_accel() > 0)
+				dy_m3 = -dy_m3;
+
 			M3.set_y_cor(M3.get_y_cor() + dy_m3);
+
 			if (M3.get_y_cor() < 3)
 				M3.set_y_cor(3);	// hit M1
 			else if (M3.get_y_cor() > 10)
