@@ -20,17 +20,17 @@ public:
 	force(f), direction(unknown),
 	g(10)
 	{
-		if (!((myu1 > 0 && myu1 <= 0.5) && (myu2 > 0 && myu2 <= 0.5) && (myu3 > 0 && myu3 <= 0.5)))
+		if (!((myu1 > 0.0 && myu1 <= 0.5) && (myu2 > 0.0 && myu2 <= 0.5) && (myu3 > 0.0 && myu3 <= 0.5)))
 			throw("Myu is out of bounds! - at System::System()");
 
 		if (!(force >= -300 && force <= 300))
 			throw("Force is out of bounds! - at System::System()");
 
-		if (force > 0)
+		if (force > 0.0)
 			direction = right;
-		else if (force == 0)
+		else if (force == 0.0)
 			direction = none;
-		else if (force < 0)
+		else if (force < 0.0)
 			direction = left;
 	}
 
@@ -86,16 +86,19 @@ public:
 
 	void PUSH( )
 	{
-		// case where f is const
-		M1.set_accel(get_m1_accel());
-		M2.set_accel(get_m23_accel());
-		M3.set_accel(get_m23_accel());
+		//// case where f is const
+		//M1.set_accel(get_m1_accel());
+		//M2.set_accel(get_m23_accel());
+		//M3.set_accel(get_m23_accel());
 
 		double t = 0.0;
 		double delta_t = 0.1;
 
 		while (t < 10)
 		{
+			M1.set_accel(get_m1_accel());
+			M2.set_accel(get_m23_accel());
+			M3.set_accel(get_m23_accel());
 			// changing the velocity and finding the distance passed during delta_t
 
 			double dx_m1 = ((M1.get_vel() * delta_t) + M1.get_accel() * ((delta_t * delta_t) / 2));
@@ -133,9 +136,22 @@ public:
 
 			M3.set_x_cor(M1.get_x_cor());
 
-			std::cout << "M1_x: " << M1.get_x_cor() << "\t" << "M1_y: " << M1.get_y_cor() << "\t" << "M2_x: " << M2.get_x_cor() << "\t" << "M2_y: " << M2.get_y_cor() << "\t" << "M3_x: " << M3.get_x_cor() << "\t" << "M3_y: " << M3.get_y_cor() << std::endl;
+			std::cout << "M1_x: " << M1.get_x_cor() << "\t" << "M1_y: " << M1.get_y_cor() << "\t" << "M2_x: " << M2.get_x_cor() << "\t" << "M2_y: " << M2.get_y_cor() << "\t" << "M3_x: " << M3.get_x_cor() << "\t" << "M3_y: " << M3.get_y_cor() << "\t" << "Force: " << force << " newtowns"<< std::endl;
 
 			t += delta_t;
+
+			if (direction == left)
+				if (force - delta_t < -300)
+					continue;
+				else
+				{
+					force -= delta_t;
+					continue;
+				}
+
+			if (force + delta_t > 300)
+				continue;
+			force += delta_t;
 		}
 	}
 
